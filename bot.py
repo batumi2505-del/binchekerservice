@@ -66,6 +66,16 @@ BTN_ADMIN_GRANT_30D = "♾️ Выдать безлимит на 30 дней"
 BTN_ADMIN_STATS = "📊 Статистика"
 BTN_ADMIN_BROADCAST = "📣 Рассылка"
 BTN_ADMIN_BACK = "🏠 В меню"
+BTN_USDT_MARKET = "💱 Покупка/продажа USDT"
+BTN_USDT_BUY = "🟢 Купить USDT"
+BTN_USDT_SELL = "🔴 Продать USDT"
+BTN_USDT_PLACE_AD = "📌 Разместить объявление"
+BTN_APPEAL_FREEZE = "🛡 Апелляция/заморозка (Bybit)"
+BTN_APPEAL = "⚖️ Апелляция"
+BTN_FREEZE_BB = "🧊 Заморозка ББ"
+BTN_DESCRIBE_CASE = "📝 Описать кейс"
+BTN_BACK = "🔙 Назад"
+BTN_MAIN_MENU = "🏠 Главное меню"
 
 MAX_PDF_SIZE_MB = 15
 INITIAL_RECEIPT_QUOTA = 3
@@ -96,7 +106,7 @@ WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "")
 # =========================
 # Поддержка / FAQ / Политика / Соцсети
 # =========================
-SUPPORT_USERNAME = "@cashoutta1"
+SUPPORT_USERNAME = "@partner_binbot"
 NEWS_CHANNEL_URL = "https://t.me/bincheker_news"
 PRIVACY_URL = "https://telegra.ph/Politika-konfidencialnosti---card-bin-checkerbot-03-16"
 FAQ_URL = "https://telegra.ph/FAQ---card-bin-checkerbot-03-16"
@@ -175,6 +185,8 @@ def build_menu(is_admin: bool, mode: str) -> ReplyKeyboardMarkup:
         [KeyboardButton(cards_btn), KeyboardButton(receipts_btn)],
         [KeyboardButton("📚 Помощь"), KeyboardButton("📈 Курс Rapira")],
         [KeyboardButton(BTN_INVITE), KeyboardButton(BTN_ACCESS)],
+        [KeyboardButton(BTN_USDT_MARKET)],
+        [KeyboardButton(BTN_APPEAL_FREEZE)],
     ]
     if is_admin:
         rows.append([KeyboardButton(BTN_ADMIN_PANEL)])
@@ -188,6 +200,105 @@ def build_admin_menu() -> ReplyKeyboardMarkup:
         [KeyboardButton(BTN_ADMIN_BACK)],
     ]
     return ReplyKeyboardMarkup(rows, resize_keyboard=True)
+
+
+def build_usdt_menu() -> ReplyKeyboardMarkup:
+    rows = [
+        [KeyboardButton(BTN_USDT_BUY), KeyboardButton(BTN_USDT_SELL)],
+        [KeyboardButton(BTN_USDT_PLACE_AD)],
+        [KeyboardButton(BTN_MAIN_MENU)],
+    ]
+    return ReplyKeyboardMarkup(rows, resize_keyboard=True)
+
+
+def build_appeal_freeze_menu() -> ReplyKeyboardMarkup:
+    rows = [
+        [KeyboardButton(BTN_APPEAL), KeyboardButton(BTN_FREEZE_BB)],
+        [KeyboardButton(BTN_MAIN_MENU)],
+    ]
+    return ReplyKeyboardMarkup(rows, resize_keyboard=True)
+
+
+def build_case_menu() -> ReplyKeyboardMarkup:
+    rows = [
+        [KeyboardButton(BTN_DESCRIBE_CASE)],
+        [KeyboardButton(BTN_BACK), KeyboardButton(BTN_MAIN_MENU)],
+    ]
+    return ReplyKeyboardMarkup(rows, resize_keyboard=True)
+
+
+def get_usdt_market_text() -> str:
+    return (
+        "💱 <b>Покупка/продажа USDT</b>\n\n"
+        "Здесь будут размещаться проверенные объявления по покупке и продаже USDT.\n"
+        "Выбери нужный раздел ниже."
+    )
+
+
+def get_usdt_empty_ads_text(direction: str) -> str:
+    return (
+        f"{direction}\n\n"
+        "Пока активных объявлений нет.\n\n"
+        f"Если хочешь разместить объявление, напиши {SUPPORT_USERNAME}."
+    )
+
+
+def get_usdt_place_ad_text() -> str:
+    return (
+        "📌 <b>Разместить объявление</b>\n\n"
+        "Можно разместить объявление в разделе покупки или продажи USDT.\n"
+        "Стоимость размещения — <b>10 USDT за 1 месяц</b>.\n\n"
+        "В объявлении можно указать ссылку, @username и короткое описание условий.\n"
+        f"Для размещения напиши: {SUPPORT_USERNAME}"
+    )
+
+
+def get_appeal_freeze_text() -> str:
+    return (
+        "🛡 <b>Апелляция/заморозка (Bybit)</b>\n\n"
+        "Выбери направление ниже: помощь с апелляцией или сопровождение при AML-заморозке аккаунта."
+    )
+
+
+def get_appeal_text() -> str:
+    return (
+        "⚖️ <b>Апелляция</b>\n\n"
+        "Если вы столкнулись с мошенничеством и нужна помощь с апелляцией, мы можем разобрать кейс "
+        "и помочь с подготовкой позиции. В ряде ситуаций это повышает вероятность исхода в вашу сторону.\n\n"
+        f"Пожалуйста, первым сообщением кратко опишите кейс и напишите: {SUPPORT_USERNAME}.\n"
+        "Отвечаем в течение рабочего дня.\n\n"
+        "⚠️ <b>Важно</b>: мы резко негативно относимся к мошенничеству и обману. "
+        "Сомнительные предложения не рассматриваем, каждый кейс проверяем внимательно. "
+        "При выявлении злонамеренных действий — сразу бан."
+    )
+
+
+def get_freeze_bb_text() -> str:
+    return (
+        "🧊 <b>Заморозка ББ</b>\n\n"
+        "Если аккаунт заморозили на AML-проверку, команда может помочь с корректной коммуникацией "
+        "и сопровождением кейса через доступные каналы связи платформы.\n\n"
+        "На практике это может сократить срок заморозки с нескольких месяцев до 1–4 недель, "
+        "если кейс легальный и документы/история операций подтверждаются.\n\n"
+        f"Пожалуйста, первым сообщением кратко опишите кейс и напишите: {SUPPORT_USERNAME}.\n"
+        "Отвечаем в течение рабочего дня.\n\n"
+        "⚠️ <b>Важно</b>: мы резко негативно относимся к мошенничеству и обману. "
+        "Сомнительные предложения не рассматриваем, каждый кейс проверяем внимательно. "
+        "При выявлении злонамеренных действий — сразу бан."
+    )
+
+
+def get_describe_case_text() -> str:
+    return (
+        "📝 <b>Описать кейс</b>\n\n"
+        f"Напиши в Telegram: {SUPPORT_USERNAME}\n\n"
+        "В первом сообщении укажи:\n"
+        "1. Что произошло.\n"
+        "2. На какой платформе/бирже возникла проблема.\n"
+        "3. Какая сумма и в какой валюте.\n"
+        "4. Какие документы, скриншоты или переписка есть.\n\n"
+        "Отвечаем в течение рабочего дня."
+    )
 
 
 def get_support_text(mode: str) -> str:
@@ -316,6 +427,14 @@ async def _db_init_schema():
 
         await conn.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS receipt_checks INTEGER DEFAULT 0;")
         await conn.execute("ALTER TABLE daily ADD COLUMN IF NOT EXISTS receipt_checks INTEGER DEFAULT 0;")
+        await conn.execute("ALTER TABLE daily ADD COLUMN IF NOT EXISTS usdt_menu_clicks INTEGER DEFAULT 0;")
+        await conn.execute("ALTER TABLE daily ADD COLUMN IF NOT EXISTS usdt_buy_clicks INTEGER DEFAULT 0;")
+        await conn.execute("ALTER TABLE daily ADD COLUMN IF NOT EXISTS usdt_sell_clicks INTEGER DEFAULT 0;")
+        await conn.execute("ALTER TABLE daily ADD COLUMN IF NOT EXISTS usdt_ad_clicks INTEGER DEFAULT 0;")
+        await conn.execute("ALTER TABLE daily ADD COLUMN IF NOT EXISTS appeal_menu_clicks INTEGER DEFAULT 0;")
+        await conn.execute("ALTER TABLE daily ADD COLUMN IF NOT EXISTS appeal_case_clicks INTEGER DEFAULT 0;")
+        await conn.execute("ALTER TABLE daily ADD COLUMN IF NOT EXISTS freeze_case_clicks INTEGER DEFAULT 0;")
+        await conn.execute("ALTER TABLE daily ADD COLUMN IF NOT EXISTS describe_case_clicks INTEGER DEFAULT 0;")
         await conn.execute(
             f"ALTER TABLE users ADD COLUMN IF NOT EXISTS receipt_quota INTEGER DEFAULT {INITIAL_RECEIPT_QUOTA} NOT NULL;"
         )
@@ -1000,6 +1119,39 @@ async def track_event_bg(user_id: int, username: str | None, event_type: str):
                 )
 
 
+BUTTON_STAT_COLUMNS = {
+    "usdt_menu_clicks",
+    "usdt_buy_clicks",
+    "usdt_sell_clicks",
+    "usdt_ad_clicks",
+    "appeal_menu_clicks",
+    "appeal_case_clicks",
+    "freeze_case_clicks",
+    "describe_case_clicks",
+}
+
+
+async def track_button_click_bg(column_name: str):
+    if column_name not in BUTTON_STAT_COLUMNS:
+        return
+
+    await _db_connect()
+    assert _db_pool is not None
+
+    day = today_str()
+    async with _db_pool.acquire() as conn:
+        async with conn.transaction():
+            await conn.execute(
+                """
+                INSERT INTO daily (day, starts, requests, unique_users, receipt_checks)
+                VALUES ($1, 0, 0, 0, 0)
+                ON CONFLICT (day) DO NOTHING
+                """,
+                day
+            )
+            await conn.execute(f"UPDATE daily SET {column_name} = COALESCE({column_name}, 0) + 1 WHERE day = $1", day)
+
+
 async def get_stats_text() -> str:
     day = today_str()
     await ensure_daily_row(day)
@@ -1012,8 +1164,29 @@ async def get_stats_text() -> str:
         total_starts = await conn.fetchrow("SELECT COALESCE(SUM(starts),0) AS s FROM users")
         total_card_requests = await conn.fetchrow("SELECT COALESCE(SUM(requests),0) AS r FROM users")
         total_receipt_checks = await conn.fetchrow("SELECT COALESCE(SUM(receipt_checks),0) AS r FROM users")
+        total_button_stats = await conn.fetchrow(
+            """
+            SELECT
+                COALESCE(SUM(usdt_menu_clicks),0) AS usdt_menu_clicks,
+                COALESCE(SUM(usdt_buy_clicks),0) AS usdt_buy_clicks,
+                COALESCE(SUM(usdt_sell_clicks),0) AS usdt_sell_clicks,
+                COALESCE(SUM(usdt_ad_clicks),0) AS usdt_ad_clicks,
+                COALESCE(SUM(appeal_menu_clicks),0) AS appeal_menu_clicks,
+                COALESCE(SUM(appeal_case_clicks),0) AS appeal_case_clicks,
+                COALESCE(SUM(freeze_case_clicks),0) AS freeze_case_clicks,
+                COALESCE(SUM(describe_case_clicks),0) AS describe_case_clicks
+            FROM daily
+            """
+        )
         today_row = await conn.fetchrow(
-            "SELECT starts, requests, unique_users, receipt_checks FROM daily WHERE day = $1",
+            """
+            SELECT
+                starts, requests, unique_users, receipt_checks,
+                usdt_menu_clicks, usdt_buy_clicks, usdt_sell_clicks, usdt_ad_clicks,
+                appeal_menu_clicks, appeal_case_clicks, freeze_case_clicks, describe_case_clicks
+            FROM daily
+            WHERE day = $1
+            """,
             day
         )
         users_with_invited_by = await conn.fetchrow("SELECT COUNT(*) AS c FROM users WHERE invited_by IS NOT NULL")
@@ -1023,29 +1196,65 @@ async def get_stats_text() -> str:
         )
         unlimited_rows = await conn.fetch("SELECT unlimited_until FROM users WHERE unlimited_until IS NOT NULL")
 
-    today_data = today_row or {"starts": 0, "requests": 0, "unique_users": 0, "receipt_checks": 0}
+    today_data = today_row or {
+        "starts": 0,
+        "requests": 0,
+        "unique_users": 0,
+        "receipt_checks": 0,
+        "usdt_menu_clicks": 0,
+        "usdt_buy_clicks": 0,
+        "usdt_sell_clicks": 0,
+        "usdt_ad_clicks": 0,
+        "appeal_menu_clicks": 0,
+        "appeal_case_clicks": 0,
+        "freeze_case_clicks": 0,
+        "describe_case_clicks": 0,
+    }
     starts_today = int(today_data.get("starts") or 0)
     card_requests_today = int(today_data.get("requests") or 0)
     receipt_checks_today = int(today_data.get("receipt_checks") or 0)
     dau_today = int(today_data.get("unique_users") or 0)
     active_unlimited_users = sum(1 for row in unlimited_rows if is_unlimited_active(row["unlimited_until"]))
 
-    return (
-        "📊 <b>Статистика</b>\n\n"
-        f"👥 <b>Пользователей всего</b>: {int(total_users['c'])}\n"
-        f"▶️ <b>/start за всё время</b>: {int(total_starts['s'])}\n"
-        f"💳 <b>Проверок карт за всё время</b>: {int(total_card_requests['r'])}\n"
-        f"🧾 <b>Проверок чеков за всё время</b>: {int(total_receipt_checks['r'])}\n"
-        f"🔗 <b>Пользователей с invited_by</b>: {int(users_with_invited_by['c'])}\n"
-        f"✅ <b>Подтверждённых рефералов</b>: {int(confirmed_referrals['c'])}\n"
-        f"🎁 <b>Выдано реферальных проверок</b>: {int(referral_rewards_total['s'])}\n"
-        f"♾️ <b>Активных безлимитов</b>: {active_unlimited_users}\n\n"
-        f"📅 <b>Сегодня ({day})</b>\n"
-        f"👤 <b>DAU</b>: {dau_today}\n"
-        f"▶️ <b>/start</b>: {starts_today}\n"
-        f"💳 <b>Проверок карт</b>: {card_requests_today}\n"
-        f"🧾 <b>Проверок чеков</b>: {receipt_checks_today}"
-    )
+    lines = [
+        "📊 <b>Статистика</b>",
+        "",
+        f"👥 <b>Пользователей всего</b>: {int(total_users['c'])}",
+        f"▶️ <b>/start за всё время</b>: {int(total_starts['s'])}",
+        f"💳 <b>Проверок карт за всё время</b>: {int(total_card_requests['r'])}",
+        f"🧾 <b>Проверок чеков за всё время</b>: {int(total_receipt_checks['r'])}",
+        f"🔗 <b>Пользователей с invited_by</b>: {int(users_with_invited_by['c'])}",
+        f"✅ <b>Подтверждённых рефералов</b>: {int(confirmed_referrals['c'])}",
+        f"🎁 <b>Выдано реферальных проверок</b>: {int(referral_rewards_total['s'])}",
+        f"♾️ <b>Активных безлимитов</b>: {active_unlimited_users}",
+        "",
+        f"📅 <b>Сегодня ({day})</b>",
+        f"👤 <b>DAU</b>: {dau_today}",
+        f"▶️ <b>/start</b>: {starts_today}",
+        f"💳 <b>Проверок карт</b>: {card_requests_today}",
+        f"🧾 <b>Проверок чеков</b>: {receipt_checks_today}",
+        "",
+        "🧩 <b>Новые разделы за всё время</b>",
+        f"💱 USDT меню: {int(total_button_stats['usdt_menu_clicks'])}",
+        f"🟢 Купить USDT: {int(total_button_stats['usdt_buy_clicks'])}",
+        f"🔴 Продать USDT: {int(total_button_stats['usdt_sell_clicks'])}",
+        f"📌 Разместить объявление: {int(total_button_stats['usdt_ad_clicks'])}",
+        f"🛡 Апелляция/заморозка меню: {int(total_button_stats['appeal_menu_clicks'])}",
+        f"⚖️ Апелляция: {int(total_button_stats['appeal_case_clicks'])}",
+        f"🧊 Заморозка ББ: {int(total_button_stats['freeze_case_clicks'])}",
+        f"📝 Описать кейс: {int(total_button_stats['describe_case_clicks'])}",
+        "",
+        "🧩 <b>Новые разделы сегодня</b>",
+        f"💱 USDT меню: {int(today_data.get('usdt_menu_clicks') or 0)}",
+        f"🟢 Купить USDT: {int(today_data.get('usdt_buy_clicks') or 0)}",
+        f"🔴 Продать USDT: {int(today_data.get('usdt_sell_clicks') or 0)}",
+        f"📌 Разместить объявление: {int(today_data.get('usdt_ad_clicks') or 0)}",
+        f"🛡 Апелляция/заморозка меню: {int(today_data.get('appeal_menu_clicks') or 0)}",
+        f"⚖️ Апелляция: {int(today_data.get('appeal_case_clicks') or 0)}",
+        f"🧊 Заморозка ББ: {int(today_data.get('freeze_case_clicks') or 0)}",
+        f"📝 Описать кейс: {int(today_data.get('describe_case_clicks') or 0)}",
+    ]
+    return chr(10).join(lines)
 
 
 # =========================
@@ -3839,6 +4048,16 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             BTN_ADMIN_BACK,
             "📊 Статистика",
             "📣 Рассылка",
+            BTN_USDT_MARKET,
+            BTN_USDT_BUY,
+            BTN_USDT_SELL,
+            BTN_USDT_PLACE_AD,
+            BTN_APPEAL_FREEZE,
+            BTN_APPEAL,
+            BTN_FREEZE_BB,
+            BTN_DESCRIBE_CASE,
+            BTN_BACK,
+            BTN_MAIN_MENU,
         }
         if text_raw in admin_service_buttons:
             context.user_data["awaiting_broadcast"] = False
@@ -3915,6 +4134,111 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if is_receipts_button(text_raw):
         await switch_mode(update, context, MODE_RECEIPTS)
+        return
+
+    if text_raw == BTN_MAIN_MENU:
+        context.user_data.pop("submenu", None)
+        await update.message.reply_text(
+            "🏠 Главное меню.",
+            reply_markup=build_menu(is_admin_user(update), mode)
+        )
+        return
+
+    if text_raw == BTN_BACK:
+        submenu = context.user_data.get("submenu")
+        if submenu in {"appeal", "freeze"}:
+            context.user_data["submenu"] = "appeal_freeze"
+            await update.message.reply_text(
+                get_appeal_freeze_text(),
+                parse_mode="HTML",
+                reply_markup=build_appeal_freeze_menu()
+            )
+            return
+        context.user_data["submenu"] = "usdt_market"
+        await update.message.reply_text(
+            get_usdt_market_text(),
+            parse_mode="HTML",
+            reply_markup=build_usdt_menu()
+        )
+        return
+
+    if text_raw == BTN_USDT_MARKET:
+        context.user_data["submenu"] = "usdt_market"
+        fire_and_forget(asyncio.create_task(track_button_click_bg("usdt_menu_clicks")))
+        await update.message.reply_text(
+            get_usdt_market_text(),
+            parse_mode="HTML",
+            reply_markup=build_usdt_menu()
+        )
+        return
+
+    if text_raw == BTN_USDT_BUY:
+        context.user_data["submenu"] = "usdt_market"
+        fire_and_forget(asyncio.create_task(track_button_click_bg("usdt_buy_clicks")))
+        await update.message.reply_text(
+            get_usdt_empty_ads_text("🟢 <b>Купить USDT</b>"),
+            parse_mode="HTML",
+            reply_markup=build_usdt_menu()
+        )
+        return
+
+    if text_raw == BTN_USDT_SELL:
+        context.user_data["submenu"] = "usdt_market"
+        fire_and_forget(asyncio.create_task(track_button_click_bg("usdt_sell_clicks")))
+        await update.message.reply_text(
+            get_usdt_empty_ads_text("🔴 <b>Продать USDT</b>"),
+            parse_mode="HTML",
+            reply_markup=build_usdt_menu()
+        )
+        return
+
+    if text_raw == BTN_USDT_PLACE_AD:
+        context.user_data["submenu"] = "usdt_market"
+        fire_and_forget(asyncio.create_task(track_button_click_bg("usdt_ad_clicks")))
+        await update.message.reply_text(
+            get_usdt_place_ad_text(),
+            parse_mode="HTML",
+            reply_markup=build_usdt_menu()
+        )
+        return
+
+    if text_raw == BTN_APPEAL_FREEZE:
+        context.user_data["submenu"] = "appeal_freeze"
+        fire_and_forget(asyncio.create_task(track_button_click_bg("appeal_menu_clicks")))
+        await update.message.reply_text(
+            get_appeal_freeze_text(),
+            parse_mode="HTML",
+            reply_markup=build_appeal_freeze_menu()
+        )
+        return
+
+    if text_raw == BTN_APPEAL:
+        context.user_data["submenu"] = "appeal"
+        fire_and_forget(asyncio.create_task(track_button_click_bg("appeal_case_clicks")))
+        await update.message.reply_text(
+            get_appeal_text(),
+            parse_mode="HTML",
+            reply_markup=build_case_menu()
+        )
+        return
+
+    if text_raw == BTN_FREEZE_BB:
+        context.user_data["submenu"] = "freeze"
+        fire_and_forget(asyncio.create_task(track_button_click_bg("freeze_case_clicks")))
+        await update.message.reply_text(
+            get_freeze_bb_text(),
+            parse_mode="HTML",
+            reply_markup=build_case_menu()
+        )
+        return
+
+    if text_raw == BTN_DESCRIBE_CASE:
+        fire_and_forget(asyncio.create_task(track_button_click_bg("describe_case_clicks")))
+        await update.message.reply_text(
+            get_describe_case_text(),
+            parse_mode="HTML",
+            reply_markup=build_case_menu()
+        )
         return
 
     if text_raw == "📚 Помощь":
