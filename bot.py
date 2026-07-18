@@ -106,7 +106,7 @@ WEBHOOK_SECRET = os.getenv("WEBHOOK_SECRET", "")
 # =========================
 # Поддержка / FAQ / Политика / Соцсети
 # =========================
-SUPPORT_USERNAME = "@partner_binbot"
+SUPPORT_USERNAME = "@InLineKey"
 NEWS_CHANNEL_URL = "https://t.me/bincheker_news"
 PRIVACY_URL = "https://telegra.ph/Politika-konfidencialnosti---card-bin-checkerbot-03-16"
 FAQ_URL = "https://telegra.ph/FAQ---card-bin-checkerbot-03-16"
