@@ -71,10 +71,6 @@ BTN_USDT_BUY = "🟢 Купить USDT"
 BTN_USDT_SELL = "🔴 Продать USDT"
 BTN_USDT_PLACE_AD = "📌 Разместить объявление"
 BTN_APPEAL_FREEZE = "🛡 Апелляция/заморозка (Bybit)"
-BTN_APPEAL = "⚖️ Апелляция"
-BTN_FREEZE_BB = "🧊 Заморозка ББ"
-BTN_DESCRIBE_CASE = "📝 Описать кейс"
-BTN_BACK = "🔙 Назад"
 BTN_MAIN_MENU = "🏠 Главное меню"
 
 MAX_PDF_SIZE_MB = 15
@@ -182,11 +178,11 @@ def build_menu(is_admin: bool, mode: str) -> ReplyKeyboardMarkup:
     receipts_btn = BTN_RECEIPTS_ACTIVE if mode == MODE_RECEIPTS else BTN_RECEIPTS
 
     rows = [
+        [KeyboardButton(BTN_APPEAL_FREEZE)],
         [KeyboardButton(cards_btn), KeyboardButton(receipts_btn)],
         [KeyboardButton("📚 Помощь"), KeyboardButton("📈 Курс Rapira")],
         [KeyboardButton(BTN_INVITE), KeyboardButton(BTN_ACCESS)],
         [KeyboardButton(BTN_USDT_MARKET)],
-        [KeyboardButton(BTN_APPEAL_FREEZE)],
     ]
     if is_admin:
         rows.append([KeyboardButton(BTN_ADMIN_PANEL)])
@@ -211,20 +207,11 @@ def build_usdt_menu() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(rows, resize_keyboard=True)
 
 
-def build_appeal_freeze_menu() -> ReplyKeyboardMarkup:
-    rows = [
-        [KeyboardButton(BTN_APPEAL), KeyboardButton(BTN_FREEZE_BB)],
-        [KeyboardButton(BTN_MAIN_MENU)],
-    ]
-    return ReplyKeyboardMarkup(rows, resize_keyboard=True)
-
-
-def build_case_menu() -> ReplyKeyboardMarkup:
-    rows = [
-        [KeyboardButton(BTN_DESCRIBE_CASE)],
-        [KeyboardButton(BTN_BACK), KeyboardButton(BTN_MAIN_MENU)],
-    ]
-    return ReplyKeyboardMarkup(rows, resize_keyboard=True)
+def build_appeal_freeze_menu() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup([
+        [InlineKeyboardButton("Описать кейс", url="https://t.me/ving_helper")],
+        [InlineKeyboardButton(BTN_MAIN_MENU, callback_data="appeal_main_menu")],
+    ])
 
 
 def get_usdt_market_text() -> str:
@@ -255,49 +242,10 @@ def get_usdt_place_ad_text() -> str:
 
 def get_appeal_freeze_text() -> str:
     return (
-        "🛡 <b>Апелляция/заморозка (Bybit)</b>\n\n"
-        "Выбери направление ниже: помощь с апелляцией или сопровождение при AML-заморозке аккаунта."
-    )
-
-
-def get_appeal_text() -> str:
-    return (
-        "⚖️ <b>Апелляция</b>\n\n"
-        "Если вы столкнулись с мошенничеством и нужна помощь с апелляцией, мы можем разобрать кейс "
-        "и помочь с подготовкой позиции. В ряде ситуаций это повышает вероятность исхода в вашу сторону.\n\n"
-        f"Пожалуйста, первым сообщением кратко опишите кейс и напишите: {SUPPORT_USERNAME}.\n"
-        "Отвечаем в течение рабочего дня.\n\n"
-        "⚠️ <b>Важно</b>: мы резко негативно относимся к мошенничеству и обману. "
-        "Сомнительные предложения не рассматриваем, каждый кейс проверяем внимательно. "
-        "При выявлении злонамеренных действий — сразу бан."
-    )
-
-
-def get_freeze_bb_text() -> str:
-    return (
-        "🧊 <b>Заморозка ББ</b>\n\n"
-        "Если аккаунт заморозили на AML-проверку, команда может помочь с корректной коммуникацией "
-        "и сопровождением кейса через доступные каналы связи платформы.\n\n"
-        "На практике это может сократить срок заморозки с нескольких месяцев до 1–4 недель, "
-        "если кейс легальный и документы/история операций подтверждаются.\n\n"
-        f"Пожалуйста, первым сообщением кратко опишите кейс и напишите: {SUPPORT_USERNAME}.\n"
-        "Отвечаем в течение рабочего дня.\n\n"
-        "⚠️ <b>Важно</b>: мы резко негативно относимся к мошенничеству и обману. "
-        "Сомнительные предложения не рассматриваем, каждый кейс проверяем внимательно. "
-        "При выявлении злонамеренных действий — сразу бан."
-    )
-
-
-def get_describe_case_text() -> str:
-    return (
-        "📝 <b>Описать кейс</b>\n\n"
-        f"Напиши в Telegram: {SUPPORT_USERNAME}\n\n"
-        "В первом сообщении укажи:\n"
-        "1. Что произошло.\n"
-        "2. На какой платформе/бирже возникла проблема.\n"
-        "3. Какая сумма и в какой валюте.\n"
-        "4. Какие документы, скриншоты или переписка есть.\n\n"
-        "Отвечаем в течение рабочего дня."
+        "⚖️ <b>Апелляция / заморозка Bybit</b>\n\n"
+        "Нажмите кнопку ниже, чтобы сразу перейти в чат.\n\n"
+        "В первом сообщении кратко опишите вашу ситуацию — "
+        "мы ознакомимся с деталями и сразу приступим к решению вашего вопроса."
     )
 
 
@@ -1125,9 +1073,6 @@ BUTTON_STAT_COLUMNS = {
     "usdt_sell_clicks",
     "usdt_ad_clicks",
     "appeal_menu_clicks",
-    "appeal_case_clicks",
-    "freeze_case_clicks",
-    "describe_case_clicks",
 }
 
 
@@ -1171,10 +1116,7 @@ async def get_stats_text() -> str:
                 COALESCE(SUM(usdt_buy_clicks),0) AS usdt_buy_clicks,
                 COALESCE(SUM(usdt_sell_clicks),0) AS usdt_sell_clicks,
                 COALESCE(SUM(usdt_ad_clicks),0) AS usdt_ad_clicks,
-                COALESCE(SUM(appeal_menu_clicks),0) AS appeal_menu_clicks,
-                COALESCE(SUM(appeal_case_clicks),0) AS appeal_case_clicks,
-                COALESCE(SUM(freeze_case_clicks),0) AS freeze_case_clicks,
-                COALESCE(SUM(describe_case_clicks),0) AS describe_case_clicks
+                COALESCE(SUM(appeal_menu_clicks),0) AS appeal_menu_clicks
             FROM daily
             """
         )
@@ -1183,7 +1125,7 @@ async def get_stats_text() -> str:
             SELECT
                 starts, requests, unique_users, receipt_checks,
                 usdt_menu_clicks, usdt_buy_clicks, usdt_sell_clicks, usdt_ad_clicks,
-                appeal_menu_clicks, appeal_case_clicks, freeze_case_clicks, describe_case_clicks
+                appeal_menu_clicks
             FROM daily
             WHERE day = $1
             """,
@@ -1206,9 +1148,6 @@ async def get_stats_text() -> str:
         "usdt_sell_clicks": 0,
         "usdt_ad_clicks": 0,
         "appeal_menu_clicks": 0,
-        "appeal_case_clicks": 0,
-        "freeze_case_clicks": 0,
-        "describe_case_clicks": 0,
     }
     starts_today = int(today_data.get("starts") or 0)
     card_requests_today = int(today_data.get("requests") or 0)
@@ -1240,9 +1179,6 @@ async def get_stats_text() -> str:
         f"🔴 Продать USDT: {int(total_button_stats['usdt_sell_clicks'])}",
         f"📌 Разместить объявление: {int(total_button_stats['usdt_ad_clicks'])}",
         f"🛡 Апелляция/заморозка меню: {int(total_button_stats['appeal_menu_clicks'])}",
-        f"⚖️ Апелляция: {int(total_button_stats['appeal_case_clicks'])}",
-        f"🧊 Заморозка ББ: {int(total_button_stats['freeze_case_clicks'])}",
-        f"📝 Описать кейс: {int(total_button_stats['describe_case_clicks'])}",
         "",
         "🧩 <b>Новые разделы сегодня</b>",
         f"💱 USDT меню: {int(today_data.get('usdt_menu_clicks') or 0)}",
@@ -1250,9 +1186,6 @@ async def get_stats_text() -> str:
         f"🔴 Продать USDT: {int(today_data.get('usdt_sell_clicks') or 0)}",
         f"📌 Разместить объявление: {int(today_data.get('usdt_ad_clicks') or 0)}",
         f"🛡 Апелляция/заморозка меню: {int(today_data.get('appeal_menu_clicks') or 0)}",
-        f"⚖️ Апелляция: {int(today_data.get('appeal_case_clicks') or 0)}",
-        f"🧊 Заморозка ББ: {int(today_data.get('freeze_case_clicks') or 0)}",
-        f"📝 Описать кейс: {int(today_data.get('describe_case_clicks') or 0)}",
     ]
     return chr(10).join(lines)
 
@@ -3763,6 +3696,19 @@ async def do_broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
+async def appeal_main_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    if not query:
+        return
+
+    await query.answer()
+    context.user_data.pop("submenu", None)
+    await query.message.reply_text(
+        "🏠 Главное меню.",
+        reply_markup=build_menu(query.from_user.id in ADMIN_IDS, get_mode(context))
+    )
+
+
 async def flag_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     if not query:
@@ -4053,10 +3999,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             BTN_USDT_SELL,
             BTN_USDT_PLACE_AD,
             BTN_APPEAL_FREEZE,
-            BTN_APPEAL,
-            BTN_FREEZE_BB,
-            BTN_DESCRIBE_CASE,
-            BTN_BACK,
             BTN_MAIN_MENU,
         }
         if text_raw in admin_service_buttons:
@@ -4144,24 +4086,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return
 
-    if text_raw == BTN_BACK:
-        submenu = context.user_data.get("submenu")
-        if submenu in {"appeal", "freeze"}:
-            context.user_data["submenu"] = "appeal_freeze"
-            await update.message.reply_text(
-                get_appeal_freeze_text(),
-                parse_mode="HTML",
-                reply_markup=build_appeal_freeze_menu()
-            )
-            return
-        context.user_data["submenu"] = "usdt_market"
-        await update.message.reply_text(
-            get_usdt_market_text(),
-            parse_mode="HTML",
-            reply_markup=build_usdt_menu()
-        )
-        return
-
     if text_raw == BTN_USDT_MARKET:
         context.user_data["submenu"] = "usdt_market"
         fire_and_forget(asyncio.create_task(track_button_click_bg("usdt_menu_clicks")))
@@ -4209,35 +4133,6 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             get_appeal_freeze_text(),
             parse_mode="HTML",
             reply_markup=build_appeal_freeze_menu()
-        )
-        return
-
-    if text_raw == BTN_APPEAL:
-        context.user_data["submenu"] = "appeal"
-        fire_and_forget(asyncio.create_task(track_button_click_bg("appeal_case_clicks")))
-        await update.message.reply_text(
-            get_appeal_text(),
-            parse_mode="HTML",
-            reply_markup=build_case_menu()
-        )
-        return
-
-    if text_raw == BTN_FREEZE_BB:
-        context.user_data["submenu"] = "freeze"
-        fire_and_forget(asyncio.create_task(track_button_click_bg("freeze_case_clicks")))
-        await update.message.reply_text(
-            get_freeze_bb_text(),
-            parse_mode="HTML",
-            reply_markup=build_case_menu()
-        )
-        return
-
-    if text_raw == BTN_DESCRIBE_CASE:
-        fire_and_forget(asyncio.create_task(track_button_click_bg("describe_case_clicks")))
-        await update.message.reply_text(
-            get_describe_case_text(),
-            parse_mode="HTML",
-            reply_markup=build_case_menu()
         )
         return
 
@@ -4422,6 +4317,7 @@ async def run_bot():
     application.add_handler(CommandHandler("grant_unlimited", grant_unlimited_cmd))
     application.add_handler(CommandHandler("user_access", user_access_cmd))
 
+    application.add_handler(CallbackQueryHandler(appeal_main_menu_callback, pattern=r"^appeal_main_menu$"))
     application.add_handler(CallbackQueryHandler(flag_callback, pattern=r"^(flag:|flag_yes:|flag_no:)"))
     application.add_handler(MessageHandler(filters.Document.ALL, handle_document))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
