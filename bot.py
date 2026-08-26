@@ -71,6 +71,7 @@ BTN_USDT_BUY = "🟢 Купить USDT"
 BTN_USDT_SELL = "🔴 Продать USDT"
 BTN_USDT_PLACE_AD = "📌 Разместить объявление"
 BTN_APPEAL_FREEZE = "🛡 Апелляция/заморозка (Bybit)"
+BTN_DESCRIBE_CASE = "📝 Описать кейс"
 BTN_MAIN_MENU = "🏠 Главное меню"
 
 MAX_PDF_SIZE_MB = 15
@@ -207,11 +208,12 @@ def build_usdt_menu() -> ReplyKeyboardMarkup:
     return ReplyKeyboardMarkup(rows, resize_keyboard=True)
 
 
-def build_appeal_freeze_menu() -> InlineKeyboardMarkup:
-    return InlineKeyboardMarkup([
-        [InlineKeyboardButton("Описать кейс", url="https://t.me/ving_helper")],
-        [InlineKeyboardButton(BTN_MAIN_MENU, callback_data="appeal_main_menu")],
-    ])
+def build_appeal_freeze_menu() -> ReplyKeyboardMarkup:
+    rows = [
+        [KeyboardButton(BTN_DESCRIBE_CASE)],
+        [KeyboardButton(BTN_MAIN_MENU)],
+    ]
+    return ReplyKeyboardMarkup(rows, resize_keyboard=True)
 
 
 def get_usdt_market_text() -> str:
@@ -3696,19 +3698,6 @@ async def do_broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-async def appeal_main_menu_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    if not query:
-        return
-
-    await query.answer()
-    context.user_data.pop("submenu", None)
-    await query.message.reply_text(
-        "🏠 Главное меню.",
-        reply_markup=build_menu(query.from_user.id in ADMIN_IDS, get_mode(context))
-    )
-
-
 async def flag_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     if not query:
@@ -3999,6 +3988,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
             BTN_USDT_SELL,
             BTN_USDT_PLACE_AD,
             BTN_APPEAL_FREEZE,
+            BTN_DESCRIBE_CASE,
             BTN_MAIN_MENU,
         }
         if text_raw in admin_service_buttons:
@@ -4132,6 +4122,16 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
         await update.message.reply_text(
             get_appeal_freeze_text(),
             parse_mode="HTML",
+            reply_markup=build_appeal_freeze_menu()
+        )
+        return
+
+    if text_raw == BTN_DESCRIBE_CASE and context.user_data.get("submenu") == "appeal_freeze":
+        await update.message.reply_text(
+            '👉 <a href="https://t.me/ving_helper">Перейти в чат с помощником</a>\n\n'
+            'Первым сообщением кратко опишите вашу ситуацию.',
+            parse_mode="HTML",
+            disable_web_page_preview=True,
             reply_markup=build_appeal_freeze_menu()
         )
         return
@@ -4317,7 +4317,6 @@ async def run_bot():
     application.add_handler(CommandHandler("grant_unlimited", grant_unlimited_cmd))
     application.add_handler(CommandHandler("user_access", user_access_cmd))
 
-    application.add_handler(CallbackQueryHandler(appeal_main_menu_callback, pattern=r"^appeal_main_menu$"))
     application.add_handler(CallbackQueryHandler(flag_callback, pattern=r"^(flag:|flag_yes:|flag_no:)"))
     application.add_handler(MessageHandler(filters.Document.ALL, handle_document))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
