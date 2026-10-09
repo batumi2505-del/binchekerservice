@@ -179,7 +179,6 @@ def build_menu(is_admin: bool, mode: str) -> ReplyKeyboardMarkup:
     receipts_btn = BTN_RECEIPTS_ACTIVE if mode == MODE_RECEIPTS else BTN_RECEIPTS
 
     rows = [
-        [KeyboardButton(BTN_APPEAL_FREEZE)],
         [KeyboardButton(cards_btn), KeyboardButton(receipts_btn)],
         [KeyboardButton("📚 Помощь"), KeyboardButton("📈 Курс Rapira")],
         [KeyboardButton(BTN_INVITE), KeyboardButton(BTN_ACCESS)],
@@ -3973,6 +3972,15 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     text_raw = (update.message.text or "").strip()
     mode = get_mode(context)
+
+    # Раздел апелляций временно отключён: блокируем также старые клавиатуры.
+    if text_raw in {BTN_APPEAL_FREEZE, BTN_DESCRIBE_CASE}:
+        context.user_data.pop("submenu", None)
+        await update.message.reply_text(
+            "🏠 Главное меню.",
+            reply_markup=build_menu(is_admin_user(update), mode)
+        )
+        return
 
     if is_admin_user(update) and context.user_data.get("awaiting_broadcast"):
         admin_service_buttons = {
