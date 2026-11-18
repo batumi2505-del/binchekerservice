@@ -28,6 +28,7 @@ from telegram import (
     InlineKeyboardMarkup,
     InlineKeyboardButton,
 )
+from telegram.error import NetworkError, TimedOut
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -4314,6 +4315,8 @@ async def run_bot():
     application = (
         Application.builder()
         .token(token)
+        .connect_timeout(30)
+        .read_timeout(30)
         .concurrent_updates(True)
         .build()
     )
@@ -4332,7 +4335,15 @@ async def run_bot():
     port = int(os.environ.get("PORT", 8080))
 
     logger.info("Бот запускается...")
-    await application.initialize()
+    for attempt in range(1, 6):
+        try:
+            await application.initialize()
+            break
+        except (TimedOut, NetworkError):
+            logger.exception("Не удалось подключиться к Telegram (попытка %s/5)", attempt)
+            if attempt == 5:
+                raise
+            await asyncio.sleep(min(5 * attempt, 20))
     await application.start()
 
     http_runner = await run_http_server(port, application)
@@ -4388,4 +4399,4 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         logger.info("Бот остановлен по запросу пользователя")
     except Exception as e:
-        logger.error(f"Фатальная ошибка: {str(e)}")
+        logger.exception("Фатальная ошибка: %s", e)
